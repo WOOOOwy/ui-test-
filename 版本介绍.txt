@@ -1,6 +1,0 @@
-yueshicai-1
-yueshicai-2
-yueshicai-3（纯白背景、轮播banner）
-yueshicai-4（渐变浅绿背景、轮播banner）
-yueshicai-5（渐变浅绿背景、等待轮播图banner）
-yueshicai-6（渐变浅绿背景、通栏轮播banner）
