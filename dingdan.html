@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>粤食采 · 订单 </title>
+<style>
+  :root{
+    --bg:#F1FAF1;
+    --white:#fff;
+    --green:#34ac40;
+    --green-light:#E8F5E9;
+    --green-soft:#F1FAF1;
+    --red:#E53935;
+    --orange:#F59E0B;
+    --ink:#1A231B;
+    --sub:#7B8A7C;
+    --line:#EDF2ED;
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:linear-gradient(180deg,#E6F3E6 0%,#F7FBF7 20%,#FFFFFF 100%);color:var(--ink);font-size:14px;line-height:1.5}
+  .phone{position:relative;width:375px;margin:0 auto;background:transparent;height:812px;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.08);display:flex;flex-direction:column}
+
+  /* status bar */
+  .statusbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:13px;font-weight:600;background:transparent;color:var(--ink);flex:none}
+  .statusbar .right{display:flex;gap:5px;align-items:center}
+  .statusbar svg{display:block}
+
+  /* page header */
+  .page-header{flex:none;display:flex;align-items:center;justify-content:flex-start;padding:8px 16px 10px;position:relative;background:transparent}
+  .brand{display:flex;align-items:center;gap:8px}
+  .brand img{height:28px;width:auto;display:block;flex:none}
+  .brand span{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.3px}
+  .capsule{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;align-items:center;border:1px solid #DDE3DD;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.75);height:30px;padding:0 4px}
+  .capsule .dot{width:34px;height:100%;display:flex;align-items:center;justify-content:center;gap:2.5px}
+  .capsule .dot i{width:3.5px;height:3.5px;border-radius:50%;background:var(--ink)}
+  .capsule .sep{width:1px;height:18px;background:#E6E9E6}
+  .capsule .min{width:34px;height:100%;display:flex;align-items:center;justify-content:center}
+  .capsule .min i{width:12px;height:1.5px;background:var(--ink);border-radius:1px}
+  .capsule .close{width:34px;height:100%;display:flex;align-items:center;justify-content:center}
+  .capsule .close i{width:12px;height:12px;border:1.5px solid var(--ink);border-radius:50%}
+
+  /* search */
+  .searchwrap{flex:none;padding:0 16px 10px;background:transparent}
+  .search{display:flex;align-items:center;background:var(--white);border:1px solid var(--line);border-radius:22px;padding:4px 4px 4px 12px}
+  .search svg{flex:none;color:var(--sub);width:16px;height:16px}
+  .search input{flex:1;border:none;background:transparent;font-size:13px;color:var(--ink);outline:none;padding-left:8px}
+  .search input::placeholder{color:#8a9a8a}
+  .search .go{background:var(--green);color:#fff;font-size:13px;padding:7px 16px;border-radius:18px;font-weight:600;margin-left:6px}
+
+  /* filter tabs */
+  .filterbar{flex:none;display:flex;gap:8px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .filterbar::-webkit-scrollbar{display:none}
+  .filter{flex:none;padding:7px 14px;border-radius:18px;font-size:13px;font-weight:600;color:var(--sub);background:transparent;border:1px solid transparent}
+  .filter.on{color:var(--green);background:var(--green-light);border-color:rgba(52,172,64,.18)}
+
+  /* order list */
+  .order-list{flex:1;overflow-y:auto;padding:0 16px 90px}
+  .order-list::-webkit-scrollbar{display:none}
+  .order-card{background:var(--white);border-radius:14px;border:1.5px solid #C4DCC4;padding:14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(52,172,64,.08),0 1px 3px rgba(0,0,0,.05)}
+  .order-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+  .order-shop{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--ink);flex:1;min-width:0}
+  .order-shop .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .order-shop svg{width:16px;height:16px;color:var(--sub);flex:none}
+  .order-status{font-size:12px;color:var(--sub);background:#F2F5F2;padding:3px 8px;border-radius:5px;flex:none}
+  .order-status.red{color:var(--red);background:#FFF0F0}
+  .order-status.orange{color:var(--orange);background:#FFF8E6}
+
+  .item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid #F0F4F0}
+  .item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .item .img{width:64px;height:64px;border-radius:8px;overflow:hidden;flex:none;background:#F7FBF7}
+  .item .img img{width:100%;height:100%;display:block;object-fit:cover}
+  .item .info{flex:1;min-width:0}
+  .item .nm{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+  .item .unit{font-size:12px;color:var(--sub)}
+  .item .right{text-align:right}
+  .item .price{font-size:14px;font-weight:800;color:var(--ink)}
+  .item .qty{font-size:11px;color:var(--sub);margin-top:2px}
+  .item .subtotal{font-size:12px;color:var(--sub);margin-top:4px}
+  .item .subtotal b{font-weight:700;color:var(--ink)}
+
+  .order-foot{display:flex;justify-content:flex-end;align-items:baseline;gap:4px;margin-top:10px;padding-top:10px;border-top:1px dashed #D8E6D8}
+  .order-foot .label{font-size:13px;color:var(--ink)}
+  .order-foot .total{font-size:13px;color:var(--ink)}
+  .order-foot .total b{font-size:20px;color:var(--red);font-weight:800}
+
+  /* empty */
+  .empty{text-align:center;padding:60px 0 40px;color:var(--sub)}
+  .empty svg{width:110px;height:110px;margin:0 auto 14px;display:block;stroke:#9DB3A2;stroke-width:2;fill:none}
+  .empty p{font-size:14px}
+  .empty-end{display:flex;align-items:center;justify-content:center;padding:60px 20px;color:#9DB39D;font-size:13px}
+  .empty-end::before,.empty-end::after{content:'';flex:1;height:1px;background:#E0E6E0;max-width:80px}
+  .empty-end::before{margin-right:12px}
+  .empty-end::after{margin-left:12px}
+
+  /* tabbar */
+  .tabbar{position:absolute;bottom:0;left:0;right:0;height:64px;background:#fff;display:flex;z-index:40;border-top:1px solid var(--line)}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--sub);font-size:10.5px;position:relative;text-decoration:none}
+  .tab svg{width:22px;height:22px}
+  .tab.on{color:var(--green)}
+  .tab .badge{position:absolute;top:4px;right:calc(50% - 17px);background:var(--red);color:#fff;font-size:9px;min-width:15px;height:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:700}
+
+  /* toast */
+  .toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(33,48,31,.9);color:#fff;padding:10px 18px;border-radius:22px;font-size:13px;z-index:99;opacity:0;pointer-events:none;transition:opacity .3s}
+  .toast.show{opacity:1}
+
+  /* skeleton */
+  .skeleton{position:absolute;inset:0;background:linear-gradient(180deg,#E6F3E6 0%,#F7FBF7 60%,#FFFFFF 100%);z-index:60;padding:16px;display:flex;flex-direction:column}
+  .sk{background:linear-gradient(90deg,#e0e9e0 25%,#eef3ee 37%,#e0e9e0 63%);background-size:400% 100%;animation:sh 1.4s infinite;border-radius:10px}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  .sk-row{display:flex;gap:11px;margin-bottom:12px}
+  .sk-card{height:90px;flex:1}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="right">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="#34ac40"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="#34ac40"><path d="M8 2.2C5.5 2.2 3.2 3.2 1.6 4.8L0 3.2C2 1 4.8-0.2 8-0.2s6 1.2 8 3.4l-1.6 1.6C12.8 3.2 10.5 2.2 8 2.2z"/><path d="M8 6.5c-1.7 0-3.2.7-4.3 1.8L2 6.7C3.4 5.3 5.5 4.4 8 4.4s4.6.9 6 2.3l-1.7 1.6C11.2 7.2 9.7 6.5 8 6.5z"/><circle cx="8" cy="11" r="1.8"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="#34ac40"><rect x="0" y="1" width="22" height="10" rx="2.5" fill="none" stroke="#34ac40"/><rect x="2" y="3" width="17" height="6" rx="1"/><rect x="23" y="4" width="2" height="4" rx="1"/></svg>
+    </span>
+  </div>
+
+  <div class="page-header">
+    <div class="brand">
+      <img src="https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/icon_new.png" alt="" onerror="this.style.display='none'">
+      <span>粤食采智慧交易平台</span>
+    </div>
+    <div class="capsule">
+      <div class="dot"><i></i><i></i><i></i></div>
+      <div class="sep"></div>
+      <div class="min"><i></i></div>
+      <div class="sep"></div>
+      <div class="close"><i></i></div>
+    </div>
+  </div>
+
+  <div class="searchwrap">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#7B8A7C" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+      <input type="text" placeholder="请输入订单号/商户名/商品名称搜索" id="searchInput">
+      <div class="go" id="searchBtn">搜索</div>
+    </div>
+  </div>
+
+  <div class="filterbar" id="filterBar">
+    <span class="filter on" data-status="all">全部</span>
+    <span class="filter" data-status="pending">待付款</span>
+    <span class="filter" data-status="grouping">拼单中</span>
+    <span class="filter" data-status="delivering">待配送</span>
+    <span class="filter" data-status="receiving">待收货</span>
+    <span class="filter" data-status="cancelled">已取消</span>
+  </div>
+
+  <div class="order-list" id="orderList">
+    <!-- injected -->
+  </div>
+
+  <div class="tabbar">
+    <a href="shouye.html" class="tab" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9h12v-9" stroke-linejoin="round"/></svg>首页
+    </a>
+    <a href="suoyoushangpin.html" class="tab" data-tab="all">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>所有商品
+    </a>
+    <a href="caigouche.html" class="tab" data-tab="cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.5 12h11L21 7H6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.6" fill="currentColor" stroke="none"/></svg>采购车
+    </a>
+    <a href="dingdan.html" class="tab on" data-tab="order">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" stroke-linejoin="round"/><path d="M9 8h6M9 12h6" stroke-linecap="round"/></svg>订单
+    </a>
+    <a href="wode.html" class="tab" data-tab="me">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>我的
+    </a>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="skeleton" id="skeleton">
+    <div class="sk" style="height:44px;border-radius:16px;margin-bottom:10px"></div>
+    <div class="sk" style="height:48px;border-radius:24px;margin-bottom:14px"></div>
+    <div class="sk-row"><div class="sk sk-card"></div></div>
+    <div class="sk-row"><div class="sk sk-card"></div></div>
+  </div>
+
+</div>
+
+<script>
+const FALLBACK = 'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/logo_yueshicai.png';
+function imgError(img){img.onerror=null;img.src=FALLBACK;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400);}
+
+const orders = [
+  {
+    id:'O20260828001', shop:'佛山市水果批发有限公司', status:'cancelled', statusText:'已取消',
+    items:[
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/prod_beef.jpg', nm:'牛龙骨', unit:'斤', price:0.01, qty:1},
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/prod_mushroom.png', nm:'香菇', unit:'斤', price:0.01, qty:1}
+    ]
+  },
+  {
+    id:'O20260828002', shop:'佛山市水果批发有限公司', status:'pending', statusText:'待付款',
+    items:[
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/prod_grape.jpg', nm:'红提', unit:'斤', price:0.01, qty:1},
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/prod_chicken.jpg', nm:'便宜的鸡脚', unit:'斤', price:1.00, qty:1}
+    ]
+  },
+  {
+    id:'O20260828003', shop:'桂城生鲜配送中心', status:'receiving', statusText:'待收货',
+    items:[
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/baipixueli.png', nm:'白皮雪梨', unit:'斤', price:3.50, qty:2},
+      {img:'https://raw.githubusercontent.com/WOOOowy/ui-test-/main/assets/images/zaosuli.png', nm:'早酥梨', unit:'斤', price:2.60, qty:3}
+    ]
+  }
+];
+
+const statusMap = {
+  all:'全部', pending:'待付款', grouping:'拼单中', delivering:'待配送', receiving:'待收货', cancelled:'已取消'
+};
+
+const orderList = document.getElementById('orderList');
+
+function renderOrders(filter='all'){
+  let list = filter==='all' ? orders : orders.filter(o=>o.status===filter);
+  if(list.length===0){
+    orderList.innerHTML = `<div class="empty-end">没有更多订单了</div>`;
+    return;
+  }
+  orderList.innerHTML = list.map(o=>{
+    const total = o.items.reduce((s,it)=>s+it.price*it.qty,0);
+    const statusClass = o.status==='cancelled'?'red':(o.status==='pending'?'orange':'');
+    return `
+    <div class="order-card">
+      <div class="order-head">
+        <div class="order-shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21v-6h6v6" stroke-linecap="round"/></svg>
+          <span class="name">${o.shop}</span>
+        </div>
+        <span class="order-status ${statusClass}">${o.statusText}</span>
+      </div>
+      ${o.items.map(it=>{
+        const sub = (it.price * it.qty).toFixed(2);
+        return `
+      <div class="item">
+        <div class="img"><img src="${it.img}" alt="${it.nm}" onerror="imgError(this)"></div>
+        <div class="info">
+          <div class="nm">${it.nm}</div>
+          <div class="unit">${it.unit}</div>
+        </div>
+        <div class="right">
+          <div class="price">¥${it.price.toFixed(2)}</div>
+          <div class="qty">x${it.qty}</div>
+          <div class="subtotal">小计 <b>¥${sub}</b></div>
+        </div>
+      </div>
+      `}).join('')}
+      <div class="order-foot">
+        <span class="label">应付款</span>
+        <span class="total"><small>¥</small><b>${total.toFixed(2)}</b></span>
+      </div>
+    </div>`;
+  }).join('') + `<div class="empty-end">没有更多订单了</div>`;
+}
+
+// filter tabs
+document.querySelectorAll('.filter').forEach(f=>{
+  f.addEventListener('click',()=>{
+    document.querySelectorAll('.filter').forEach(x=>x.classList.remove('on'));
+    f.classList.add('on');
+    renderOrders(f.dataset.status);
+  });
+});
+
+// search
+function doSearch(){
+  const kw = document.getElementById('searchInput').value.trim();
+  if(!kw){renderOrders('all');document.querySelector('.filter[data-status="all"]').classList.add('on');return;}
+  const matched = orders.filter(o=>o.id.includes(kw)||o.shop.includes(kw)||o.items.some(it=>it.nm.includes(kw)));
+  document.querySelectorAll('.filter').forEach(x=>x.classList.remove('on'));
+  let html = matched.length ? matched.map(o=>{
+    const total = o.items.reduce((s,it)=>s+it.price*it.qty,0);
+    const statusClass = o.status==='cancelled'?'red':(o.status==='pending'?'orange':'');
+    return `
+    <div class="order-card">
+      <div class="order-head">
+        <div class="order-shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21v-6h6v6" stroke-linecap="round"/></svg><span class="name">${o.shop}</span></div>
+        <span class="order-status ${statusClass}">${o.statusText}</span>
+      </div>
+      ${o.items.map(it=>{
+        const sub = (it.price * it.qty).toFixed(2);
+        return `<div class="item"><div class="img"><img src="${it.img}" alt="${it.nm}" onerror="imgError(this)"></div><div class="info"><div class="nm">${it.nm}</div><div class="unit">${it.unit}</div></div><div class="right"><div class="price">¥${it.price.toFixed(2)}</div><div class="qty">x${it.qty}</div><div class="subtotal">小计 <b>¥${sub}</b></div></div></div>`
+      }).join('')}
+      <div class="order-foot"><span class="label">应付款</span><span class="total"><small>¥</small><b>${total.toFixed(2)}</b></span></div>
+    </div>`;
+  }).join('') : '';
+  orderList.innerHTML = html + `<div class="empty-end">没有更多订单了</div>`;
+}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+document.getElementById('searchBtn').addEventListener('click',doSearch);
+
+renderOrders('all');
+setTimeout(()=>{document.getElementById('skeleton').classList.add('hide');},1000);
+</script>
+</body>
+</html>
