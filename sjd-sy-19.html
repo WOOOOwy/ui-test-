@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="oUbuSbOdzgNqOxfnuvXnyO">
+<head data-page-node-id="PjCFIBtsPBSF9MEdL8khhF">
+<meta charset="UTF-8" data-page-node-id="QeHWPlXQwbxopkgAcKlcEc">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="ys4iQHbyKKZwUCrupcGsDK">
+<title>粤食采 · 司机工作台</title>
+<style>
+  :root{
+    --bg:#F4F5F7;
+    --white:#fff;
+    --green:#34ac40;
+    --green-dark:#2A8E34;
+    --green-light:#E8F5E9;
+    --ink:#1A231B;
+    --sub:#7B8A7C;
+    --line:#EDF2ED;
+    --orange:#F59E0B;
+    --blue:#2E9BD6;
+    --red:#E53935;
+    --gray:#9CA3AF;
+    --info-bg:#F5F5F7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Helvetica,"Microsoft YaHei",sans-serif;
+    background:#E5E7EA;color:var(--ink);font-size:14px;line-height:1.5;
+    display:flex;justify-content:center;align-items:center;min-height:100vh;
+  }
+  /* 参考设计稿14：画框整体白底，内容区不透显渐变 */
+  .phone{
+    position:relative;width:375px;height:812px;margin:0 auto;
+    background:var(--white);overflow:hidden;
+    border-radius:44px;box-shadow:0 20px 60px rgba(0,0,0,0.15),0 2px 8px rgba(0,0,0,0.08);
+    border:10px solid #1A1A1A;
+    display:flex;flex-direction:column;
+  }
+
+  /* 状态栏：透明叠加在淡绿头部 */
+  .status-bar{
+    position:absolute;top:0;left:0;right:0;height:44px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:0 18px;font-size:15px;font-weight:600;color:var(--ink);z-index:20;
+  }
+  .status-bar .time{font-variant-numeric:tabular-nums}
+  .status-bar .right-icons{display:flex;align-items:center;gap:5px}
+  .status-bar svg,.status-bar img{display:block}
+
+  /* 淡绿头部：与设计稿 #14 完全一致 */
+  .top{
+    flex:none;padding:56px 16px 18px;
+    background:linear-gradient(180deg,#F1FAF1 0%,#E8F5E9 60%,#FFFFFF 100%);
+    position:relative;
+  }
+  .top::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(52,172,64,.06);top:-40px;right:-40px}
+  .top-inner{position:relative;z-index:1}
+  .top-title{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;letter-spacing:.5px}
+  .top-title img{height:24px;width:auto;display:block;border-radius:4px}
+  .top-title .dot{width:4px;height:4px;border-radius:50%;background:var(--sub);flex:none}
+
+  /* 司机信息 + 供应商区 合并卡（纯白不透明，不透显背景） */
+  .driver-card{
+    position:relative;z-index:2;background:var(--white);border-radius:16px;border:1px solid var(--line);
+    padding:16px;box-shadow:0 8px 24px rgba(28,56,32,.06);
+  }
+  .driver-top{display:flex;align-items:flex-start;justify-content:space-between}
+  .driver-id-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .driver-name{font-size:17px;font-weight:700}
+  .driver-phone{font-size:13px;color:var(--sub);margin-top:4px;letter-spacing:.5px}
+  .status-tag{
+    display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;
+    font-size:12px;font-weight:600;
+  }
+  .status-tag.normal{display:inline-flex;background:rgba(52,172,64,.12);color:var(--green-dark)}
+  .status-tag.unfilled{display:inline-flex;background:rgba(120,120,120,.12);color:#777}
+  .top-actions{display:flex;align-items:center;gap:8px}
+  .icon-btn{
+    width:40px;height:40px;border-radius:12px;flex:none;
+    background:var(--green-light);display:flex;align-items:center;justify-content:center;
+    color:var(--green);border:none;cursor:pointer;
+  }
+  .icon-btn svg{width:20px;height:20px;display:block}
+
+  .driver-divider{height:1px;background:var(--line);margin:16px 0 12px;border:none}
+
+  /* 供应商区域 */
+  .supplier-section{cursor:pointer}
+  .sc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .sc-title{font-size:14px;font-weight:500;color:var(--ink)}
+  .sc-main{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .sc-left{flex:1;min-width:0}
+  .sc-count{font-size:13px;color:var(--sub)}
+  .sc-warn{
+    display:none;align-items:center;gap:4px;margin-top:6px;
+    font-size:13px;color:var(--orange);line-height:1.4;
+  }
+  .sc-warn svg{width:14px;height:14px;flex:none}
+  .sc-arrow{
+    width:28px;height:28px;border-radius:50%;background:var(--green-light);
+    display:flex;align-items:center;justify-content:center;color:var(--sub);flex:none;
+  }
+  .sc-arrow svg{width:16px;height:16px;display:block}
+
+  /* 内容滚动区：背景透明透出整页渐变（背景连续），滚动条隐藏但保留滚动 */
+  .container{position:relative;z-index:1;flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch;background:transparent;scrollbar-width:none;-ms-overflow-style:none}
+  .container::-webkit-scrollbar{width:0;height:0;display:none}
+
+  /* 吸顶搜索 + Tab 区域 */
+  .sticky-bar{
+    position:sticky;top:0;z-index:10;
+    padding:12px 0;
+    background:#fff;
+    border-bottom:1px solid transparent;
+  }
+  .sticky-bar.stuck{border-bottom-color:var(--line)}
+
+  /* 工具行：搜索框 + 日历 */
+  .tool-row{display:flex;align-items:center;gap:10px}
+  .search-box{
+    flex:1;min-width:0;display:flex;align-items:center;height:40px;
+    background:#F4F5F7;border-radius:10px;padding:0 4px 0 12px;
+  }
+  .search-box input{
+    flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:14px;color:var(--ink);font-family:inherit
+  }
+  .search-box input::placeholder{color:var(--gray)}
+  .search-btn{
+    flex:none;height:24px;padding:0 10px;border-left:1px dashed #CBD5E1;
+    background:transparent;color:var(--sub);border-top:none;border-right:none;border-bottom:none;
+    font-size:13px;font-weight:500;cursor:pointer;font-family:inherit
+  }
+  .search-btn:active{color:var(--ink)}
+  .calendar-btn{
+    width:40px;height:40px;border-radius:10px;background:#F4F5F7;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;position:relative
+  }
+  .calendar-btn svg{width:18px;height:18px;color:var(--sub)}
+  .calendar-btn .date-dot{
+    position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--green)
+  }
+  .filter-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .filter-tag{
+    display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px;border-radius:13px;
+    background:#E8F5E9;color:var(--green-dark);font-size:12px;font-weight:500
+  }
+  .filter-tag.search-tag{background:#F4F5F7;color:var(--ink)}
+  .filter-tag .close{width:14px;height:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--green-dark)}
+  .filter-tag.search-tag .close{color:var(--sub)}
+  .filter-tag .close svg{width:12px;height:12px}
+
+  /* Tab：去除描边与灰绿色样式，仅保留文字色 + 下划线 */
+  .order-section{margin-top:0}
+  .order-tabs{
+    display:flex;background:transparent;border:none;border-radius:0;overflow:hidden;margin-top:10px
+  }
+  .order-tab{
+    flex:1 1 0;min-width:0;height:40px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:600;color:var(--sub);border:none;background:transparent;cursor:pointer;position:relative;font-family:inherit
+  }
+  .order-tab.active{color:var(--green)}
+  .order-tab.active::after{
+    content:'';position:absolute;bottom:0;left:25%;right:25%;height:3px;background:var(--green);border-radius:2px
+  }
+  /* Tab 右上角红色统计角标 */
+  .order-tab .tab-label{position:relative;display:inline-block;line-height:1}
+  .tab-badge{
+    position:absolute;top:-9px;right:-17px;min-width:16px;height:16px;padding:0 4px;
+    background:var(--red);color:#fff;border-radius:9px;font-size:11px;font-weight:600;
+    line-height:16px;text-align:center;white-space:nowrap;
+  }
+
+  /* 订单列表：卡片白底不透显，内边距 14px / 卡片间距 10px / 圆角 10px */
+  .order-list{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+  .order-card{
+    background:var(--white);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .oc-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .oc-shop{
+    flex:1;min-width:0;font-size:16px;font-weight:600;color:var(--ink);line-height:1.35;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .oc-status{
+    flex-shrink:0;font-size:13px;font-weight:600;
+  }
+  .oc-status.wait{color:var(--orange)}
+  .oc-status.run{color:var(--blue)}
+  .oc-status.done{color:var(--green-dark)}
+  .info-block{
+    background:var(--info-bg);border-radius:8px;padding:10px 12px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .info-row{display:flex;align-items:center;gap:6px;font-size:12px;min-width:0}
+  .info-row .label{flex:none;color:var(--sub);white-space:nowrap;font-size:12px}
+  .info-row .value{flex:none;color:var(--ink);font-weight:600;font-size:13px;white-space:nowrap}
+  .info-row .remain{flex:none;margin-left:auto;color:var(--ink);font-weight:600;font-size:13px;white-space:nowrap}
+  .info-row .remain.overdue{color:var(--red)}
+  .driver-tag{
+    display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:12px;
+    background:var(--green-light);color:var(--green-dark);font-size:12px;font-weight:600;
+  }
+  .driver-tag svg{width:14px;height:14px;flex:none}
+  /* 订单信息行：label 12px #9CA3AF / value 13px #333 右对齐 */
+  .oc-kv-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .oc-kv-row .k{font-size:12px;color:#9CA3AF;white-space:nowrap}
+  .oc-kv-row .v{font-size:13px;color:#333;font-weight:400;text-align:right}
+  .empty{text-align:center;color:var(--sub);font-size:14px;padding:40px 0}
+  .empty svg{width:64px;height:64px;display:block;margin:0 auto 12px;color:#D1D5DB}
+
+  /* 右下角调试（贴底） */
+  .debug{position:absolute;right:18px;bottom:18px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .debug-fab{height:18px;padding:0 8px;border-radius:9px;background:rgba(26,35,27,.3);color:#fff;border:none;font-size:10px;cursor:pointer;font-family:inherit}
+  .debug-fab:active{background:rgba(26,35,27,.7)}
+  .debug-panel{
+    display:none;flex-direction:column;gap:6px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);width:180px;margin-bottom:4px;
+  }
+  .debug-panel.open{display:flex}
+  .debug-title{font-size:12px;color:var(--sub);margin-bottom:2px}
+  .debug-panel button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;text-align:left;cursor:pointer;font-family:inherit}
+  .debug-panel button:active{background:var(--bg)}
+  .debug-panel button.active{background:var(--green-light);border-color:var(--green);color:var(--green-dark);font-weight:600}
+
+  /* 日历弹窗 */
+  .modal{position:absolute;inset:0;background:rgba(26,35,27,.5);z-index:60;display:none;align-items:flex-end;justify-content:center}
+  .modal.show{display:flex}
+  .modal-box{
+    width:100%;background:#fff;border-radius:18px 18px 0 0;padding:16px 16px 24px;
+    box-shadow:0 -8px 32px rgba(0,0,0,.12);animation:slideUp .25s ease-out
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .modal-title{font-size:16px;font-weight:700}
+  .modal-close{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--sub);cursor:pointer}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-nav button{border:none;background:transparent;font-size:14px;color:var(--ink);padding:6px;cursor:pointer}
+  .cal-month{font-size:15px;font-weight:700}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:13px}
+  .cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;color:var(--ink)}
+  .cal-cell.gray{color:#CBD5E1}
+  .cal-cell.today{border:1px solid var(--green)}
+  .cal-cell.selected{background:var(--green);color:#fff}
+  .cal-actions{display:flex;gap:10px;margin-top:16px}
+  .cal-actions button{flex:1;height:44px;border-radius:8px;border:none;font-size:15px;cursor:pointer;font-family:inherit}
+  .btn-clear{background:#F4F5F7;color:var(--ink)}
+  .btn-confirm{background:var(--green);color:#fff;font-weight:600}
+
+  /* Toast */
+  .toast{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    background:rgba(33,48,31,.9);color:#fff;padding:10px 18px;border-radius:22px;
+    font-size:13px;z-index:99;opacity:0;pointer-events:none;transition:opacity .3s;max-width:280px;text-align:center
+  }
+  .toast.show{opacity:1}
+
+  /* 底部 home indicator */
+  .home-indicator{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:134px;height:5px;background:#1A231B;border-radius:3px;z-index:35}
+</style>
+</head>
+<body data-page-node-id="HKywFtrvFJkHNJIFZqI9Pp">
+<div class="phone" data-page-node-id="ClbTTVBoefbENi24RUDBFk">
+  <!-- 系统状态栏 -->
+  <div class="status-bar" data-page-node-id="ziaghlyHzoVztKlAdk8bTK">
+    <span class="time" data-page-node-id="Og0RebtFV5KW8AqJeDmwYS">9:41</span>
+    <span class="right-icons" data-page-node-id="MM0AUz6AtyhhwxqulGhR6E">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="none" data-page-node-id="I3EpXkW30cBkoBBkmlyAk0"><rect x="0" y="7" width="3" height="4" rx="0.5" fill="#1A231B" data-page-node-id="QW725C7GenONiMFNLTnA6y"/><rect x="4.5" y="5" width="3" height="6" rx="0.5" fill="#1A231B" data-page-node-id="ZzEWcB2Xyt4SXooxNE6dI1"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.5" fill="#1A231B" data-page-node-id="65cNpvtG27AGwzEGj2mKki"/><rect x="13.5" y="0" width="3" height="11" rx="0.5" fill="#1A231B" data-page-node-id="29Edo4FIimOtbxEhksctLi"/></svg>
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="none" data-page-node-id="xYw5EpRGY9Wh8hdRNICKFv"><path d="M7.5 2.5C9.6 2.5 11.6 3.3 13.1 4.7L14.2 3.6C12.4 2 9.9 1 7.5 1C5.1 1 2.6 2 0.8 3.6L1.9 4.7C3.4 3.3 5.4 2.5 7.5 2.5Z" fill="#1A231B" data-page-node-id="3qyOPduHLECQFwgFT3XKub"/><path d="M7.5 5.5C8.9 5.5 10.3 6 11.4 7L12.5 5.9C11.1 4.6 9.4 4 7.5 4C5.6 4 3.9 4.6 2.5 5.9L3.6 7C4.7 6 6.1 5.5 7.5 5.5Z" fill="#1A231B" data-page-node-id="ITqpXy5HzGqVtHE3k2ZAsb"/><circle cx="7.5" cy="8.5" r="1.5" fill="#1A231B" data-page-node-id="H0lVBRkJ2c4yHHDBF1BYaG"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none" data-page-node-id="mwkfLrwpJBU0PlcJDIqwmp"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#1A231B" fill="none" data-page-node-id="A2MgzPdBJCMkvQLobeNB4d"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="#1A231B" data-page-node-id="nfysHAUWDwhWD5ANZyK1sS"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#1A231B" data-page-node-id="lEvKPGU25dpArbAt5egr10"/></svg>
+    </span>
+  </div>
+
+  <!-- 淡绿头部 -->
+  <div class="top" data-page-node-id="LoskuGqcdMBnoQvUvy12Ud">
+    <div class="top-inner" data-page-node-id="E2ZCG9G9ePQdBiUzWFVVz6">
+      <div class="top-title" data-page-node-id="u5BEtZb93f3xo71NgCgX3A">
+        <img src="assets/images/logo_ytss_rectangle.png" alt="一天膳食" onerror="this.style.display='none'" data-page-node-id="RM5q3sYNSsL3rBJX695etm">
+        <span class="dot" data-page-node-id="JpgoqSGjwKhln0AJOZLIwH"></span>
+        <span data-page-node-id="EIFsWsTrU7dnfXRse2y8T9">司机工作台</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 内容区 -->
+  <div class="container" id="container" data-page-node-id="b1gAQRIAyE3C53B481l0xC">
+    <!-- 司机/供应商合并卡 -->
+    <div class="driver-card" data-page-node-id="kcbKCf3Rgd5E4txYYMCOvC">
+      <div class="driver-top" data-page-node-id="M74x84OTCZwo8JIkToEPNh">
+        <div data-page-node-id="Bc9REkFzpAHhfwFnhaW2Wi">
+          <div class="driver-id-row" data-page-node-id="ts2ERsZto9HBEbOOHshu2C">
+            <div class="driver-name" data-page-node-id="1LPjikyQ8bZpb5QROAnDC9">张建国</div>
+            <span class="status-tag normal" data-page-node-id="tDF38iqD7b924sGRbE1VbW">账号：正常</span>
+          </div>
+          <div class="driver-phone" data-page-node-id="2zd3amGHoejtQyZDmL1iAO">138 0013 8888</div>
+        </div>
+        <div class="top-actions" data-page-node-id="Z9PhEu4RHSFqH0kAI0Jfji">
+          <button class="icon-btn" id="settingsBtn" aria-label="设置" data-page-node-id="W4R9JHNMIWaBevNDq4yFeY">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="M9lCYScbqlPvM0SMVVrcHm"><circle cx="12" cy="12" r="3" data-page-node-id="CDk6QRJN3euGcr0ab9QDeq"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" data-page-node-id="W1vhy89ZFhIOVORE4fwoa6"/></svg>
+          </button>
+        </div>
+      </div>
+      <hr class="driver-divider" data-page-node-id="w9o1WsH24RVTJHCsuGEiQQ">
+      <div class="supplier-section" id="supplierSection" data-page-node-id="kCVXv3fnFg77OgG8yvzByU">
+        <div class="sc-head" data-page-node-id="LgEXWWERBqKA8PTwICK1fh">
+          <div class="sc-title" data-page-node-id="4zeE3gDXCDj86Fol8HhNGe">我的合作供应商</div>
+        </div>
+        <div class="sc-main" data-page-node-id="6LzuS4spkhyntkqveUpNH6">
+          <div class="sc-left" data-page-node-id="2cipC9aAydu0J6T44DicCg">
+            <div class="sc-count" id="supplierCount" data-page-node-id="IXlszOeTeZyYWmTlODx5Ax">共 2 家合作供应商</div>
+            <div class="sc-warn" id="supplierWarn" data-page-node-id="HTc3YA8vzCBm7ZltdsOGBc">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="FQ1DynWvjo3GF8xaaVcNEX"><path d="M12 3l9 16H3z" stroke-linejoin="round" data-page-node-id="cpyy0bDmILo92vDndvuokG"/><path d="M12 10v4" stroke-linecap="round" data-page-node-id="50uZICQit4lE3u4nUIAUKa"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" data-page-node-id="vpG48wraxlATPf9vN0SV0A"/></svg>
+              <span data-page-node-id="bmZgiMKooKoHhjU1RbHJcc">存在异常合作关系，请查看处理...</span>
+            </div>
+          </div>
+          <div class="sc-arrow" data-page-node-id="FSJ3D1CUlHql3hqOgnvgkS">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="MzkuHtYYCH91r570etBzJ8"><path d="M9 18l6-6-6-6" data-page-node-id="IA70ttwyy1AEzgQGYWgnth"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 吸顶搜索 + Tab -->
+    <div class="sticky-bar" id="stickyBar" data-page-node-id="M9pfGT5GXmoMbvaXX8lAr2">
+      <div class="tool-row" data-page-node-id="PVJVdZhuaK73BQJKXBlwu0">
+        <div class="search-box" data-page-node-id="2na9sFZPkVDlTpq3PI1UHG">
+          <input type="text" id="searchInput" placeholder="搜索订单号 / 采购商名" autocomplete="off" data-page-node-id="fAGcbn3BALg3JIkLrMVeuw">
+          <button class="search-btn" id="searchBtn" data-page-node-id="z6kL9g8yX2vR1mNpQqJsT">搜索</button>
+        </div>
+        <div class="calendar-btn" id="calendarBtn" aria-label="选择日期" data-page-node-id="fktQvTIi5f8CPJokMK8HVz">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="8gqhTKRg3XmsiYBPITHspF"><rect x="3" y="4" width="18" height="18" rx="2" data-page-node-id="9LUpMANlvA9PFvHMh6KB51"/><line x1="16" y1="2" x2="16" y2="6" data-page-node-id="kGbwmgkomC2l4C8EhqOTYF"/><line x1="8" y1="2" x2="8" y2="6" data-page-node-id="QCASbCBwhzmOxU011m7x3D"/><line x1="3" y1="10" x2="21" y2="10" data-page-node-id="ynMEQdRV4xcquc55W8CzLy"/></svg>
+          <span class="date-dot" id="dateDot" style="display:none" data-page-node-id="iyvBsIEtkFm6gnQbTrl0MP"></span>
+        </div>
+      </div>
+      <div class="filter-tags" id="filterTags" data-page-node-id="dwinNTKyjd8QED6eBSoEiD"></div>
+      <div class="order-tabs" id="orderTabs" data-page-node-id="dtde7CmO1Mh517LGdH3t3I">
+        <button class="order-tab active" data-tab="待配送" data-page-node-id="M5mTXrHRJerS9mnNhWql5k"><span class="tab-label">待配送<span class="tab-badge" data-tab="待配送">0</span></span></button>
+        <button class="order-tab" data-tab="配送中" data-page-node-id="QG8UOApREXY3ryEogFq5WU"><span class="tab-label">配送中<span class="tab-badge" data-tab="配送中">0</span></span></button>
+        <button class="order-tab" data-tab="已送达" data-page-node-id="ecE7GBsY5bnoJufMcW6gTn">已送达</button>
+      </div>
+    </div>
+
+    <!-- 订单列表 -->
+    <div class="order-list" id="orderList" data-page-node-id="Jeaua2nleEdL5nVmH7MbIe"></div>
+  </div>
+
+  <!-- 调试 -->
+  <div class="debug" data-page-node-id="stV9CAEBUef7NNvQroDARB">
+    <div class="debug-panel" id="debugPanel" data-page-node-id="vtPbzmqcPtyYqHBHGye5OD">
+      <div class="debug-title" data-page-node-id="QRlYfvxFsPkQd7hIXeG0DR">数据演示</div>
+      <button data-demo="multi" class="active" data-page-node-id="fzViWVUPRzgPUXUBTRzyPc">多供应商</button>
+      <button data-demo="single" data-page-node-id="dh0GF5CgNePAm7xHVPX6bE">单供应商</button>
+    </div>
+    <button class="debug-fab" id="debugFab" data-page-node-id="LEGzcnHMAsqoLIhGFhYWJh">调试</button>
+  </div>
+
+  <!-- 日历弹窗 -->
+  <div class="modal" id="dateModal" data-page-node-id="9CcHYuhd9iXJQMp0gSJEmA">
+    <div class="modal-box" data-page-node-id="ufT4Ps4LlreyWMsXxIVyA3">
+      <div class="modal-head" data-page-node-id="UvTwuSeI6M1wI9S3u9cqgS">
+        <div class="modal-title" data-page-node-id="tINm7FryhGS1LcrJcCvqZY">选择配送日期</div>
+        <div class="modal-close" id="dateClose" data-page-node-id="0mGMVfMlJ0EvI9X4AGz70h">✕</div>
+      </div>
+      <div class="cal-nav" data-page-node-id="3xXx3asFJQieZjzNSZKyTZ">
+        <button id="prevMonth" data-page-node-id="xwzKwSKCmg7Wspvhsl0Ekl">‹</button>
+        <div class="cal-month" id="calMonth" data-page-node-id="KBi9fzhGmMnnmGqtOaaHhC"></div>
+        <button id="nextMonth" data-page-node-id="SFTRFyiLXGsYqXwRszTnsJ">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid" data-page-node-id="vaISVukRMLmqPytiord8hs"></div>
+      <div class="cal-actions" data-page-node-id="iU1Q9daUoHAWoOxghSonfc">
+        <button class="btn-clear" id="clearDate" data-page-node-id="Rk2mWqB7dNpZxLc4VtYuEs">清除</button>
+        <button class="btn-confirm" id="confirmDate" data-page-node-id="FfsekYEOE7ZC45LZbukNaM">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" data-page-node-id="Wr11wyCrJH9gFCQE2nTxQv"></div>
+  <div class="home-indicator" data-page-node-id="E1suv1GOuLBsW5oi6yGtpO"></div>
+</div>
+
+<script>
+/* ============ 模拟数据 ============ */
+var suppliers=[
+  {name:'佛山南海桂城餐厅',status:'normal'},
+  {name:'顺德大良酒楼',status:'normal'},
+  {name:'东莞南城食堂',status:'unbound'}
+];
+
+/* 每个状态 3 张卡片，日期互不相同 */
+var ORDERS=[
+  {id:1,orderNo:'DD20260918001',shop:'佛山南海桂城餐厅',status:'待配送',updateTime:'2026-09-18 07:45',orderTime:'2026-09-18 07:05',deliveryTime:'2026-09-18 10:00',address:'南海区桂城街道南桂东路68号（市一医院食堂）',licensePlate:'粤A·D12345',driverName:'张建国',pieces:2,totalQty:12,goods:'土豆、西红柿、鸡蛋'},
+  {id:2,orderNo:'DD20260919002',shop:'顺德大良酒楼',status:'待配送',updateTime:'2026-09-19 08:10',orderTime:'2026-09-19 07:25',deliveryTime:'2026-09-19 11:30',address:'顺德区大良街道金榜社区南国东路30号',licensePlate:'粤A·D12345',driverName:'张建国',pieces:2,totalQty:8,goods:'大米、食用油'},
+  {id:3,orderNo:'DD20260920003',shop:'东莞南城食堂',status:'待配送',updateTime:'2026-09-20 06:55',orderTime:'2026-09-20 06:30',deliveryTime:'2026-09-20 09:00',address:'南城区莞太路56号东莞中学食堂',licensePlate:'粤A·D54321',driverName:'张建国',pieces:3,totalQty:15,goods:'青菜、猪肉、豆腐'},
+  {id:4,orderNo:'DD20260917004',shop:'佛山南海桂城餐厅',status:'配送中',updateTime:'2026-09-17 09:15',orderTime:'2026-09-17 07:12',deliveryTime:'2026-09-17 11:00',address:'南海区桂城街道南桂东路68号（市一医院食堂）',licensePlate:'粤A·D12345',driverName:'张建国',pieces:4,totalQty:20,goods:'青菜、猪肉、豆腐、调料'},
+  {id:5,orderNo:'DD20260918005',shop:'广州外国语学校食堂',status:'配送中',updateTime:'2026-09-18 08:30',orderTime:'2026-09-18 07:45',deliveryTime:'2026-09-18 12:30',address:'番禺区外环西路广州外国语学校食堂',licensePlate:'粤A·D12345',driverName:'张建国',pieces:2,totalQty:10,goods:'水果、干货'},
+  {id:6,orderNo:'DD20260919006',shop:'华南理工大学食堂',status:'配送中',updateTime:'2026-09-19 07:20',orderTime:'2026-09-19 06:50',deliveryTime:'2026-09-19 10:00',address:'天河区五山路381号华工食堂',licensePlate:'粤A·D54321',driverName:'张建国',pieces:3,totalQty:14,goods:'大米、食用油、鸡蛋'},
+  {id:7,orderNo:'DD20260914007',shop:'佛山南海桂城餐厅',status:'已送达',updateTime:'2026-09-14 15:20',orderTime:'2026-09-14 09:18',deliveryTime:'2026-09-14 12:00',actualDeliveryTime:'2026-09-14 12:10',address:'南海区桂城街道南桂东路68号（市一医院食堂）',licensePlate:'粤A·D12345',driverName:'张建国',pieces:2,totalQty:10,goods:'水果、干货'},
+  {id:8,orderNo:'DD20260915008',shop:'顺德大良酒楼',status:'已送达',updateTime:'2026-09-15 08:00',orderTime:'2026-09-15 07:05',deliveryTime:'2026-09-15 09:00',actualDeliveryTime:'2026-09-15 09:10',address:'顺德区大良街道金榜社区南国东路30号',licensePlate:'粤A·D12345',driverName:'张建国',pieces:3,totalQty:15,goods:'大米、食用油、鸡蛋'},
+  {id:9,orderNo:'DD20260916009',shop:'东莞南城食堂',status:'已送达',updateTime:'2026-09-16 16:30',orderTime:'2026-09-16 10:12',deliveryTime:'2026-09-16 13:00',actualDeliveryTime:'2026-09-16 13:05',address:'南城区莞太路56号东莞中学食堂',licensePlate:'粤A·D54321',driverName:'张建国',pieces:4,totalQty:22,goods:'土豆、西红柿、鸡蛋、调料'}
+];
+
+var TABS=['待配送','配送中','已送达'];
+var curTab='待配送';
+var searchKey='';
+/* 日期筛选为「单选项」：全局仅维护唯一一个日期值 selectedDate，首页始终最多只渲染 1 个日期 chip */
+var selectedDate=null;      /* 已生效的日期筛选值（'YYYY-MM-DD' 或 null） */
+var tempDate=null;          /* 弹窗内的临时选中值，仅点【确定】后才提交生效 */
+var calDate=new Date(2026,8,1);
+var demoMode='multi';
+
+/* ============ DOM ============ */
+var container=document.getElementById('container');
+var stickyBar=document.getElementById('stickyBar');
+var searchInput=document.getElementById('searchInput');
+var searchBtn=document.getElementById('searchBtn');
+var calendarBtn=document.getElementById('calendarBtn');
+var dateDot=document.getElementById('dateDot');
+var filterTags=document.getElementById('filterTags');
+var orderTabs=document.getElementById('orderTabs');
+var orderList=document.getElementById('orderList');
+var supplierCount=document.getElementById('supplierCount');
+var supplierWarn=document.getElementById('supplierWarn');
+var dateModal=document.getElementById('dateModal');
+var calMonth=document.getElementById('calMonth');
+var calGrid=document.getElementById('calGrid');
+var clearDateBtn=document.getElementById('clearDate');
+var toastEl=document.getElementById('toast'),toastTimer=null;
+var debugPanel=document.getElementById('debugPanel');
+var debugFab=document.getElementById('debugFab');
+
+/* ============ 工具函数 ============ */
+function toast(msg){
+  toastEl.textContent=msg;toastEl.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastEl.classList.remove('show');},1800);
+}
+function fmtDate(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+function parseDate(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+
+function fmtRemain(target){
+  var now=new Date();
+  var t=parseDate(target.slice(0,10));t.setHours(+target.slice(11,13)||0);t.setMinutes(+target.slice(14,16)||0);
+  var diff=t-now;
+  if(diff<=0)return '已超时';
+  var h=Math.floor(diff/3600000);
+  var m=Math.floor((diff%3600000)/60000);
+  return '剩余 '+h+'时'+m+'分';
+}
+
+/* ============ 供应商区（仅展示，不可筛选） ============ */
+function activeSuppliers(){
+  return demoMode==='single'?[{name:'佛山南海桂城餐厅',status:'normal'}]:suppliers;
+}
+function updateSupplierArea(){
+  var list=activeSuppliers();
+  supplierCount.textContent=list.length===1?list[0].name:'共 '+list.length+' 家合作供应商';
+  var hasAnomaly=list.some(function(s){return s.status==='pending'||s.status==='rejected'||s.status==='unbound';});
+  supplierWarn.style.display=hasAnomaly?'flex':'none';
+}
+
+/* ============ 渲染 ============ */
+function renderTags(){
+  var html='';
+  if(searchKey){
+    html+='<div class="filter-tag search-tag"><span>'+searchKey+'</span><span class="close" data-type="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></div>';
+  }
+  /* 日期筛选为单选项：最多只渲染 1 个日期 chip，重新确认时原地替换其值与文案 */
+  if(selectedDate){
+    html+='<div class="filter-tag date-tag"><span>'+selectedDate+'</span><span class="close" data-type="date"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></div>';
+  }
+  filterTags.innerHTML=html;
+  filterTags.style.display=(searchKey||selectedDate)?'flex':'none';
+}
+function sortOrders(list){
+  return list.sort(function(a,b){return b.updateTime.localeCompare(a.updateTime);});
+}
+/* 统计某状态下、且通过当前搜索/日期筛选的订单数 */
+function statusCount(status){
+  return ORDERS.filter(function(o){
+    if(o.status!==status)return false;
+    if(searchKey){
+      var k=searchKey.toLowerCase();
+      if(o.orderNo.toLowerCase().indexOf(k)===-1 && o.shop.toLowerCase().indexOf(k)===-1)return false;
+    }
+    if(selectedDate){
+      if(o.status==='已送达'&&o.actualDeliveryTime){
+        if(o.actualDeliveryTime.slice(0,10)!==selectedDate)return false;
+      }else if(o.deliveryTime.slice(0,10)!==selectedDate){
+        return false;
+      }
+    }
+    return true;
+  }).length;
+}
+/* 刷新 Tab 右上角红色统计角标（待配送 / 配送中） */
+function updateTabBadges(){
+  document.querySelectorAll('#orderTabs .tab-badge').forEach(function(b){
+    var n=statusCount(b.dataset.tab);
+    b.textContent=n;
+    b.style.display=n>0?'inline-block':'none';
+  });
+}
+function renderOrders(){
+  updateTabBadges();
+  /* 后两个占位 Tab 不展示卡片 */
+  if(curTab==='xxx'){
+    orderList.innerHTML='<div class="empty"><svg viewBox="0 0 64 64" fill="none" stroke="#D1D5DB" stroke-width="1.5"><circle cx="32" cy="32" r="28"/><circle cx="32" cy="26" r="7"/><path d="M16 50c2-8 10-12 16-12s14 4 16 12"/></svg>敬请期待</div>';
+    return;
+  }
+  var list=ORDERS.filter(function(o){
+    if(o.status!==curTab)return false;
+    if(searchKey){
+      var k=searchKey.toLowerCase();
+      if(o.orderNo.toLowerCase().indexOf(k)===-1 && o.shop.toLowerCase().indexOf(k)===-1)return false;
+    }
+    if(selectedDate){
+      if(o.status==='已送达'&&o.actualDeliveryTime){
+        if(o.actualDeliveryTime.slice(0,10)!==selectedDate)return false;
+      }else if(o.deliveryTime.slice(0,10)!==selectedDate){
+        return false;
+      }
+    }
+    return true;
+  });
+  list=sortOrders(list);
+  if(!list.length){
+    orderList.innerHTML='<div class="empty"><svg viewBox="0 0 64 64" fill="none" stroke="#D1D5DB" stroke-width="1.5"><circle cx="32" cy="32" r="28"/><circle cx="32" cy="26" r="7"/><path d="M16 50c2-8 10-12 16-12s14 4 16 12"/></svg>暂无相关订单</div>';
+    return;
+  }
+  orderList.innerHTML=list.map(function(o){
+    var stClass={'待配送':'wait','配送中':'run','已送达':'done'}[o.status]||'wait';
+    var isDone=o.status==='已送达';
+    var timeLabel=isDone?'送达时间':'预计配送';
+    var timeVal=isDone&&o.actualDeliveryTime?o.actualDeliveryTime:o.deliveryTime;
+    /* 时间元素占位保持各状态间距一致：已送达用隐藏占位 */
+    var remainHtml='';
+    if(!isDone){
+      var rm=fmtRemain(o.deliveryTime);
+      var overdue=rm.indexOf('已超时')!==-1;
+      remainHtml='<span class="remain'+(overdue?' overdue':'')+'">'+rm+'</span>';
+    }else{
+      remainHtml='<span class="remain" style="visibility:hidden">剩余 0时0分</span>';
+    }
+    return '<div class="order-card" data-id="'+o.id+'">'+
+      '<div class="oc-head">'+
+        '<div class="oc-shop">'+o.shop+'</div>'+
+        '<span class="oc-status '+stClass+'">'+o.status+'</span>'+
+      '</div>'+
+      '<div class="info-block">'+
+        '<div class="info-row">'+
+          '<span class="label">'+timeLabel+'</span>'+
+          '<span class="value">'+timeVal+'</span>'+
+          remainHtml+
+        '</div>'+
+      '</div>'+
+      '<div class="oc-kv-row"><span class="k">订单编号</span><span class="v">'+o.orderNo+'</span></div>'+
+      '<div class="oc-kv-row"><span class="k">配送车辆</span><span class="v">'+o.licensePlate+'</span></div>'+
+      '<div class="oc-kv-row"><span class="k">商品信息</span><span class="v">共 '+o.totalQty+' 件 / '+o.pieces+' 种</span></div>'+
+    '</div>';
+  }).join('');
+}
+function renderAll(){
+  updateSupplierArea();
+  renderTags();
+  renderOrders();
+}
+
+/* ============ 日历（日期筛选=单选项） ============ */
+/* 唯一写入口：原地替换唯一日期值，绝不新增第二个 chip、绝不追加并行筛选项 */
+function setDateFilter(ds){
+  selectedDate=ds||null;
+  dateDot.style.display=selectedDate?'block':'none';
+  renderTags();    /* 首页筛选状态同步刷新：始终最多 1 个日期 chip */
+  renderOrders();  /* 列表数据同步刷新 */
+}
+/* 清除入口：清空唯一日期值并移除对应 chip */
+function clearDateFilter(){
+  selectedDate=null;
+  dateDot.style.display='none';
+  renderTags();
+  renderOrders();
+}
+
+function renderCalendar(){
+  var y=calDate.getFullYear(),m=calDate.getMonth();
+  calMonth.textContent=y+'年 '+(m+1)+'月';
+  var first=new Date(y,m,1),last=new Date(y,m+1,0);
+  var startDay=first.getDay()||7;
+  var cells='';
+  var prevLast=new Date(y,m,0).getDate();
+  for(var i=startDay-1;i>0;i--){
+    cells+='<div class="cal-cell gray" data-date="">'+(prevLast-i+1)+'</div>';
+  }
+  var today=fmtDate(new Date());
+  for(var d=1;d<=last.getDate();d++){
+    var ds=y+'-'+(m+1).toString().padStart(2,'0')+'-'+d.toString().padStart(2,'0');
+    var cls='cal-cell';
+    if(ds===today)cls+=' today';
+    /* 弹窗内高亮以 tempDate（临时值）为准，未点【确定】不影响首页 */
+    if(tempDate===ds)cls+=' selected';
+    cells+='<div class="'+cls+'" data-date="'+ds+'">'+d+'</div>';
+  }
+  var tail=(42-(startDay-1)-last.getDate())%7;
+  for(var j=1;j<=tail;j++){
+    cells+='<div class="cal-cell gray" data-date="">'+j+'</div>';
+  }
+  calGrid.innerHTML=cells;
+}
+/* 打开弹窗：回填当前已选日期作为默认值，并定位到该日期所在月份 */
+function openDateModal(){
+  tempDate=selectedDate;
+  calDate=selectedDate?parseDate(selectedDate):new Date();
+  renderCalendar();
+  dateModal.classList.add('show');
+}
+/* 关闭弹窗：丢弃临时值，不改动首页筛选 */
+function closeDateModal(){
+  dateModal.classList.remove('show');
+  tempDate=null;
+}
+
+/* ============ 事件绑定 ============ */
+function doSearch(){
+  searchKey=searchInput.value.trim();
+  renderTags();
+  renderOrders();
+}
+searchBtn.addEventListener('click',doSearch);
+searchInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter') doSearch();
+});
+
+calendarBtn.addEventListener('click',openDateModal);
+document.getElementById('dateClose').addEventListener('click',closeDateModal);
+dateModal.addEventListener('click',function(e){if(e.target===dateModal)closeDateModal();});
+document.getElementById('prevMonth').addEventListener('click',function(){calDate.setMonth(calDate.getMonth()-1);renderCalendar();});
+document.getElementById('nextMonth').addEventListener('click',function(){calDate.setMonth(calDate.getMonth()+1);renderCalendar();});
+calGrid.addEventListener('click',function(e){
+  var cell=e.target.closest('.cal-cell');if(!cell||!cell.dataset.date)return;
+  /* 单选：新的日期直接覆盖 tempDate，不累计、不并存 */
+  tempDate=cell.dataset.date;renderCalendar();
+});
+/* 【清除】直接生效：清空唯一日期值并移除首页 chip，随后关闭弹窗（无需再点【确定】） */
+clearDateBtn.addEventListener('click',function(){
+  if(!selectedDate){toast('当前未选择日期');return;}
+  clearDateFilter();      /* selectedDate=null + 隐藏绿点 + 刷新 chip 与列表 */
+  closeDateModal();
+});
+/* 【确定】提交：弹窗内无选中日格时校验不通过，仅提示、不关闭、不生效 */
+document.getElementById('confirmDate').addEventListener('click',function(){
+  if(!tempDate){toast('请选择日期');return;}
+  setDateFilter(tempDate);   /* 已有 chip 则原地替换，无则新建 */
+  closeDateModal();
+});
+
+filterTags.addEventListener('click',function(e){
+  var close=e.target.closest('.close');if(!close)return;
+  var type=close.dataset.type;
+  if(type==='date'){
+    clearDateFilter();   /* 清除唯一日期值并移除该 chip */
+  }else if(type==='search'){
+    searchKey='';searchInput.value='';
+  }
+  renderTags();renderOrders();
+});
+
+orderTabs.addEventListener('click',function(e){
+  var tab=e.target.closest('.order-tab');if(!tab)return;
+  document.querySelectorAll('#orderTabs .order-tab').forEach(function(t){t.classList.remove('active');});
+  tab.classList.add('active');curTab=tab.dataset.tab;renderOrders();
+});
+
+/* 吸顶状态：滚动到顶部时切换背景 */
+container.addEventListener('scroll',function(){
+  stickyBar.classList.toggle('stuck',container.scrollTop>4);
+});
+
+orderList.addEventListener('click',function(e){
+  var card=e.target.closest('.order-card');if(!card)return;
+  var id=card.dataset.id;
+  var order=ORDERS.find(function(o){return o.id==id;});
+  if(order){
+    localStorage.setItem('sjdPreviewOrderStatus',order.status);
+    location.href='sjd-ddxq-1.html?id='+id;
+  }
+});
+
+document.getElementById('supplierSection').addEventListener('click',function(){
+  location.href='sjd-wdhzgys-3.html';
+});
+
+document.getElementById('settingsBtn').addEventListener('click',function(){
+  toast('设置：跳转编辑资料页（演示）');
+});
+
+/* 调试面板 */
+debugFab.addEventListener('click',function(e){e.stopPropagation();debugPanel.classList.toggle('open');});
+debugPanel.addEventListener('click',function(e){
+  var btn=e.target.closest('button');if(!btn)return;
+  demoMode=btn.dataset.demo;
+  document.querySelectorAll('#debugPanel button').forEach(function(b){b.classList.toggle('active',b.dataset.demo===demoMode);});
+  selectedFilter='全部合作供应商';
+  renderAll();
+});
+document.addEventListener('click',function(e){if(!e.target.closest('.debug')&&debugPanel.classList.contains('open'))debugPanel.classList.remove('open');});
+
+renderAll();
+</script>
+</body>
+</html>
